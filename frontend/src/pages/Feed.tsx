@@ -14,6 +14,16 @@ import styles from './Feed.module.css';
 const LAST_SEEN_KEY = 'threat2signal_last_seen';
 const PER_PAGE = 50;
 
+type SortField = 'pub_date' | 'title' | 'source' | 'type' | 'extraction_status';
+
+const SORTABLE_COLUMNS: { field: SortField; label: string; className?: string }[] = [
+  { field: 'source', label: 'Source' },
+  { field: 'type', label: 'Type' },
+  { field: 'title', label: 'Title', className: 'thTitle' },
+  { field: 'pub_date', label: 'Date' },
+  { field: 'extraction_status', label: 'Extraction' },
+];
+
 const SOURCE_OPTIONS = [
   { value: 'cisa', label: 'CISA' },
   { value: 'acsc', label: 'ACSC' },
@@ -63,6 +73,8 @@ export default function Feed() {
   const typeFilter = searchParams.get('type') || '';
   const extractionFilter = searchParams.get('extraction_status') || '';
   const triageFilter = searchParams.get('triage_status') || '';
+  const sortField = (searchParams.get('sort') as SortField) || 'pub_date';
+  const sortDir = searchParams.get('sort_dir') || 'desc';
 
   // Derived chip state — extraction filter now carries group keys, not statuses.
   const activeExtractionGroups = extractionFilter ? extractionFilter.split(',') : [];
@@ -72,6 +84,8 @@ export default function Feed() {
   const params: Record<string, string> = {
     page: String(page),
     per_page: String(PER_PAGE),
+    sort: sortField,
+    sort_dir: sortDir,
   };
   if (sourceFilter) params.source = sourceFilter;
   if (typeFilter) params.type = typeFilter;
@@ -83,7 +97,7 @@ export default function Feed() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['advisories', page, sourceFilter, typeFilter, extractionFilter, triageFilter],
+    queryKey: ['advisories', page, sourceFilter, typeFilter, extractionFilter, triageFilter, sortField, sortDir],
     queryFn: () => fetchAdvisories(params),
     staleTime: 5 * 60 * 1000,
   });
@@ -149,6 +163,21 @@ export default function Feed() {
       updateFilter('triage_status', next.join(','));
     },
     [activeTriageStatuses, updateFilter],
+  );
+
+  const toggleSort = useCallback(
+    (field: SortField) => {
+      const next = new URLSearchParams(searchParams);
+      if (field === sortField) {
+        next.set('sort_dir', sortDir === 'desc' ? 'asc' : 'desc');
+      } else {
+        next.set('sort', field);
+        next.set('sort_dir', 'desc');
+      }
+      next.set('page', '1');
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams, sortField, sortDir],
   );
 
   const hasAnyFilter = !!(sourceFilter || typeFilter || extractionFilter || triageFilter);
@@ -313,11 +342,21 @@ export default function Feed() {
                 <tr>
                   <th className={styles.thTriage}>Triage</th>
                   <th className={styles.thId}>ID</th>
-                  <th>Source</th>
-                  <th>Type</th>
-                  <th className={styles.thTitle}>Title</th>
-                  <th>Date</th>
-                  <th>Extraction</th>
+                  {SORTABLE_COLUMNS.map((col) => (
+                    <th
+                      key={col.field}
+                      className={clsx(
+                        styles.thSortable,
+                        col.className && styles[col.className],
+                      )}
+                      onClick={() => toggleSort(col.field)}
+                    >
+                      {col.label}
+                      <span className={styles.sortIndicator}>
+                        {sortField === col.field ? (sortDir === 'desc' ? ' ▼' : ' ▲') : ''}
+                      </span>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -449,11 +488,12 @@ function StatsBar({ stats, llmStats }: { stats: StatsResponse; llmStats?: LlmSta
       </div>
       <div className={styles.statCard}>
         <div className={styles.statValue}>
-          {polls.cisa
-            ? formatDistanceToNow(new Date(polls.cisa), {
-                addSuffix: true,
-              })
-            : 'never'}
+          {(() => {
+            const times = Object.values(polls).filter(Boolean) as string[];
+            if (!times.length) return 'never';
+            const latest = times.sort().pop()!;
+            return formatDistanceToNow(new Date(latest), { addSuffix: true });
+          })()}
         </div>
         <div className={styles.statLabel}>Last Poll</div>
       </div>

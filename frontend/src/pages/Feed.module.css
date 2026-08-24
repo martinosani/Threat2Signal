@@ -309,6 +309,21 @@
   width: 36px;
 }
 
+.thSortable {
+  cursor: pointer;
+  transition: color 0.15s;
+  user-select: none;
+}
+
+.thSortable:hover {
+  color: var(--text-secondary);
+}
+
+.sortIndicator {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
 .thTitle {
   width: 50%;
 }

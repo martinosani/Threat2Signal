@@ -14,4 +14,6 @@ pyghidra_mcp_projects
 
 config/settings.yaml
 data/
-/threat2signal/__pycache__
+*.pyc
+server.log
+server.err.log

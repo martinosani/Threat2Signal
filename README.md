@@ -125,6 +125,74 @@ Run with `python -m threat2signal <command>`.
 | `hash-password` | Generate bcrypt hash for auth config |
 | `generate-secret` | Generate a random JWT secret key |
 
+## Configuration
+
+All configuration lives in `config/settings.yaml`. Key sections:
+
+### Poll & Ingestion
+
+The server runs a background poll loop that fetches new advisories from all sources on a fixed interval. Two settings control the overall behavior:
+
+| Setting | Default | Description |
+|---|---|---|
+| `poll_interval_seconds` | `86400` | How often the server polls all sources, in seconds (86400 = 24 hours). Set to `0` to disable automatic polling entirely. |
+| `max_advisories_per_source` | `5` | Hard cap on total scraped advisories per source. Once a source reaches this number, no further advisories are ingested from it regardless of how many exist upstream. Set to `0` to disable the cap (ingest everything). |
+
+Each source also has a `backfill_batch_size` (or `batch_size` for ORKL) that controls how many new advisories are scraped per poll cycle. The effective batch size per cycle is `min(batch_size, cap - already_scraped)`.
+
+Example: with `max_advisories_per_source: 5` and `cisa.backfill_batch_size: 2`, the tool scrapes 2 CISA advisories per poll cycle until 5 total are reached, then stops. The same logic applies independently to each source (CISA, ACSC, JPCERT, ORKL).
+
+Per-source settings:
+
+| Source | Batch Size Setting | Default |
+|---|---|---|
+| CISA | `cisa.backfill_batch_size` | `2` |
+| ACSC | `acsc.backfill_batch_size` | `2` |
+| JPCERT | `jpcert.backfill_batch_size` | `2` |
+| ORKL | `orkl.batch_size` | `2` |
+| MSRC | `msrc.daily_batch_size` | `50` |
+
+MSRC and KEV are not subject to the per-source cap -- they always poll. KEV is a reference catalog (no scraping cost), and MSRC CVEs go through a separate scoring pipeline.
+
+### Extraction
+
+| Setting | Description |
+|---|---|
+| `extraction.enable_intel_extraction` | `true` to run LLM intel extraction automatically after parsing. `false` to skip it. |
+| `extraction.enable_rule_generation` | `true` to generate detection rules during extraction. |
+| `extraction.intel_temperature` | LLM temperature for intel extraction (0.0 = deterministic). |
+| `extraction.intel_max_tokens` | Max output tokens for intel LLM calls. |
+
+### Poll Workflow
+
+Each poll cycle runs these steps in order:
+
+1. **Source ingestion** -- CISA, ACSC, JPCERT, ORKL (each subject to cap), then KEV, then MSRC.
+2. **Cross-reference** -- Scans advisory bodies for CVE IDs and links them to MSRC entries.
+3. **Parse extraction** -- Deterministic extraction on newly scraped advisories.
+4. **Intel extraction** -- LLM extraction on parsed advisories (if `enable_intel_extraction` is `true`). Only runs on advisories that haven't been through intel yet.
+5. **Asset download** -- Downloads pending files (PDFs, figures, STIX bundles) referenced in advisories.
+
+Analysis (the Analyze button in the UI) is never triggered by the poll. It runs only when a user clicks the button in the advisory detail page.
+
+### DeepSeek
+
+| Setting | Description |
+|---|---|
+| `deepseek.api_key` | API key for DeepSeek. |
+| `deepseek.model` | Model for intel extraction (default: `deepseek-v4-flash`). |
+| `deepseek.model_pro` | Model for on-demand analysis (default: `deepseek-v4-pro`). |
+
+### Auth
+
+| Setting | Description |
+|---|---|
+| `auth.secret_key` | JWT signing key. Generate with `python -m threat2signal generate-secret`. |
+| `auth.token_expiry_hours` | JWT token lifetime in hours (default: 24). |
+| `auth.users` | List of users with `username`, `password_hash`, and `role`. |
+
+Default credentials: `admin` / `54c16ee5-88ec-4fd0-aeba-2c208b1e149a`. Change the password after first login by generating a new hash with `python -m threat2signal hash-password` and updating `auth.users[0].password_hash` in `config/settings.yaml`.
+
 ## Setup
 
 Requires Python 3.12+.
@@ -133,26 +201,23 @@ Requires Python 3.12+.
    - `deepseek.api_key` -- for LLM extraction and analysis
    - `auth.secret_key` -- run `python -m threat2signal generate-secret`
    - `auth.users[0].password_hash` -- run `python -m threat2signal hash-password`
-   - Default credentials: `admin` / `admin`
 
 2. Initialize the database:
    ```bash
    python -m threat2signal init-db
    ```
 
-3. Run an initial backfill (CISA example, 10 advisories at a time):
+3. Start the dashboard:
+   ```bash
+   python -m threat2signal serve --host 0.0.0.0 --port 8001
+   ```
+
+   The server starts polling automatically based on `poll_interval_seconds`. Advisories appear in the feed as they are ingested and extracted.
+
+4. For manual backfill (optional, bypasses the poll loop and cap):
    ```bash
    python -m threat2signal backfill-cisa --batch-size 10 --delay 10
-   ```
-
-4. Run extraction on ingested advisories:
-   ```bash
    python -m threat2signal extract --phase all --all
-   ```
-
-5. Start the dashboard:
-   ```bash
-   python -m threat2signal serve
    ```
 
 The frontend dev server (Vite) runs separately from `frontend/` and proxies API calls to the backend on port 8001.

@@ -877,6 +877,12 @@ def _build_advisory_filters(
     return where, params
 
 
+_ADVISORY_SORT_COLUMNS = frozenset({
+    "pub_date", "title", "source", "type", "extraction_status",
+    "triage_status", "first_seen",
+})
+
+
 def get_advisories_page(
     conn: sqlite3.Connection,
     page: int = 1,
@@ -889,13 +895,18 @@ def get_advisories_page(
     date_to: str | None = None,
     search: str | None = None,
     scrape_status: str | None = "scraped",
+    sort: str = "pub_date",
+    sort_dir: str = "desc",
 ) -> dict:
     """Return paginated advisory listing excluding large text columns."""
     where, params = _build_advisory_filters(
         source, advisory_type, extraction_status, triage_status,
         date_from, date_to, search, scrape_status=scrape_status,
     )
-    # Column names are hardcoded; only values are parameterized
+    if sort not in _ADVISORY_SORT_COLUMNS:
+        sort = "pub_date"
+    direction = "ASC" if sort_dir.lower() == "asc" else "DESC"
+
     count_row = conn.execute(
         f"SELECT COUNT(*) FROM advisory WHERE {where}", params,
     ).fetchone()
@@ -908,7 +919,7 @@ def get_advisories_page(
         f"SELECT id, advisory_id, type, source, title, pub_date, "
         f"extraction_status, triage_status, first_seen "
         f"FROM advisory WHERE {where} "
-        f"ORDER BY pub_date DESC LIMIT ? OFFSET ?",
+        f"ORDER BY {sort} {direction} LIMIT ? OFFSET ?",
         params + [per_page, offset],
     )
     items = [dict(row) for row in cursor.fetchall()]

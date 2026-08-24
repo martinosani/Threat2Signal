@@ -39,6 +39,7 @@ from threat2signal.analysis.msrc_scorer import (
 )
 from threat2signal.storage import db
 from threat2signal.analysis.ioc_validator import detect_ioc_type, refang_value
+from threat2signal.poll import run_daily_poll
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,27 @@ async def _lifespan(app: FastAPI):
     )
     app.state.proxy_client = proxy_client
     logger.info("Dashboard database ready at %s", db_path)
+
+    poll_interval = int(settings.get("poll_interval_seconds", 300))
+    poll_task: asyncio.Task | None = None
+    if poll_interval > 0:
+        async def _poll_loop():
+            await asyncio.sleep(5)
+            while True:
+                logger.info("Starting scheduled poll cycle (every %ds)", poll_interval)
+                try:
+                    await asyncio.get_event_loop().run_in_executor(None, run_daily_poll)
+                    logger.info("Scheduled poll cycle complete")
+                except Exception:
+                    logger.exception("Scheduled poll cycle failed")
+                await asyncio.sleep(poll_interval)
+        poll_task = asyncio.create_task(_poll_loop())
+        logger.info("Poll loop scheduled every %d seconds", poll_interval)
+
     yield
+
+    if poll_task:
+        poll_task.cancel()
     await proxy_client.aclose()
     conn.close()
     logger.info("Dashboard database connection closed")
@@ -125,7 +146,10 @@ def _extract_bearer_token(request: Request) -> str:
 
 async def require_auth(request: Request) -> None:
     """Reject unauthenticated requests. Only /api/auth/login is exempt."""
-    if request.url.path in _PUBLIC_PATHS or not request.url.path.startswith("/api/"):
+    path = request.url.path
+    if path in _PUBLIC_PATHS or not path.startswith("/api/"):
+        return
+    if path.startswith("/api/assets/"):
         return
     auth_cfg = request.app.state.settings["auth"]
     token = _extract_bearer_token(request)
@@ -243,6 +267,8 @@ async def list_advisories(
     date_from: str | None = None,
     date_to: str | None = None,
     search: str | None = None,
+    sort: str = "pub_date",
+    sort_dir: str = "desc",
 ):
     """Return paginated advisory listing with optional filters."""
     resolved_extraction = _expand_filter_aliases(
@@ -254,6 +280,7 @@ async def list_advisories(
         advisory_type=type, extraction_status=resolved_extraction,
         triage_status=triage_status, date_from=date_from,
         date_to=date_to, search=search, scrape_status=scrape_status,
+        sort=sort, sort_dir=sort_dir,
     )
 
 
