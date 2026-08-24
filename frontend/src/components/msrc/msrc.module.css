@@ -1,0 +1,406 @@
+/* MSRC component styles — CveDetailPanel + ScoreBreakdown */
+
+/* ---------- CveDetailPanel ---------- */
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.panelCveId {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.panelTitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.panelCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.panelCloseBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.panelBody {
+  padding: 0;
+}
+
+.panelSection {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.panelSection:last-child {
+  border-bottom: none;
+}
+
+.panelSectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+/* Info grid */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.infoValue {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.infoValueMono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* Exploit status flags */
+.flagRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flagItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.flagDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.flagActive {
+  background: var(--status-completed);
+}
+
+.flagInactive {
+  background: var(--border);
+}
+
+/* CVSS decomposition grid */
+.cvssGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 12px;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-muted) 5%, transparent);
+}
+
+.cvssItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cvssLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 36px;
+}
+
+.cvssValue {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+/* KEV section */
+.kevGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* KB patches table */
+.kbTable {
+  width: 100%;
+  font-size: 12px;
+}
+
+.kbTable th {
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.kbTable td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.kbTable a {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.kbTable a:hover {
+  text-decoration: underline;
+}
+
+/* Linked advisories */
+.advisoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advisoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.advisoryItemId {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.advisoryItemId:hover {
+  text-decoration: underline;
+}
+
+.advisoryItemTitle {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.advisoryItemDate {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Customer action callout */
+.callout {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Error / retry */
+.panelError {
+  padding: 20px;
+  text-align: center;
+  color: var(--status-failed);
+  font-size: 13px;
+}
+
+.retryBtn {
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.retryBtn:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* ---------- ScoreBreakdown ---------- */
+
+.scoreHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scoreTotal {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.scoreBar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-hover);
+  margin-bottom: 12px;
+}
+
+.scoreSegment {
+  height: 100%;
+  min-width: 2px;
+  transition: width var(--transition-normal);
+}
+
+.scoreDimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scoreDimRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.scoreDimLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  min-width: 0;
+}
+
+.scoreDimDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.scoreDimName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scoreDimDetail {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.scoreDimValue {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.bonusDivider {
+  border: none;
+  border-top: 1px dashed var(--border-subtle);
+  margin: 4px 0;
+}
+
+/* VR Tags in detail panel */
+.vrTagList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vrTagItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vrTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.vrTag[data-tag="mem_corrupt"] { background: color-mix(in srgb, var(--status-failed) 20%, transparent); color: var(--status-failed); }
+.vrTag[data-tag="kernel"] { background: color-mix(in srgb, hsl(270, 60%, 55%) 20%, transparent); color: hsl(270, 60%, 55%); }
+.vrTag[data-tag="remote_preauth"] { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
+.vrTag[data-tag="scope_change"] { background: color-mix(in srgb, var(--severity-high) 20%, transparent); color: var(--severity-high); }
+.vrTag[data-tag="novel"] { background: color-mix(in srgb, var(--status-completed) 20%, transparent); color: var(--status-completed); }
+.vrTag[data-tag="patchable"] { background: color-mix(in srgb, hsl(175, 50%, 45%) 20%, transparent); color: hsl(175, 50%, 45%); }
+.vrTag[data-tag="high_impact"] { background: color-mix(in srgb, var(--severity-medium) 20%, transparent); color: var(--severity-medium); }
+.vrTag[data-tag="info_leak"] { background: color-mix(in srgb, hsl(190, 60%, 45%) 20%, transparent); color: hsl(190, 60%, 45%); }
+
+.vrTagDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,18 @@
+# Core
+httpx==0.28.1
+curl_cffi==0.16.1
+beautifulsoup4==4.13.4
+lxml==6.1.2
+openai==1.109.1
+neo4j==5.28.4
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pyyaml==6.0.2
+yara-python==4.5.2
+pydantic==2.13.4
+PyJWT==2.13.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.3.0
+
+# Dev / Test
+pytest==8.3.5

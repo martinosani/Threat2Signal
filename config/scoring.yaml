@@ -1,0 +1,226 @@
+component_scores:
+  "Windows Kernel": 38
+  "Win32k": 35
+  "NTFS": 32
+  "Windows Hyper-V": 30
+  "Windows LDAP": 28
+  "Windows Remote Desktop": 28
+  "Windows DNS": 26
+  "Windows SMB": 26
+  "Windows OLE": 24
+  "Windows Print Spooler": 22
+  "Microsoft Exchange": 20
+  "Microsoft Office": 18
+  "Windows Defender": 16
+  "Windows Installer": 14
+  "Microsoft Edge": 10
+
+cwe_weights:
+  "CWE-122": 22    # Heap-based Buffer Overflow
+  "CWE-787": 22    # Out-of-bounds Write
+  "CWE-416": 22    # Use After Free
+  "CWE-190": 18    # Integer Overflow
+  "CWE-125": 16    # Out-of-bounds Read
+  "CWE-20": 14     # Improper Input Validation
+  "CWE-269": 12    # Improper Privilege Management
+  "CWE-287": 10    # Improper Authentication
+
+impact_weights:
+  "Remote Code Execution": 18
+  "Elevation of Privilege": 12
+  "Security Feature Bypass": 10
+  "Information Disclosure": 8
+  "Denial of Service": 6
+  "Spoofing": 3
+
+attack_vector:
+  "Network": 15
+  "Adjacent": 10
+  "Local": 8
+  "Physical": 3
+
+privileges_required:
+  "None": 10
+  "Low": 5
+  "High": 2
+
+user_interaction:
+  "None": 8
+  "Required": 3
+
+bonuses:
+  customer_action_required: 15
+  exploit_active: 20
+  kev_listed: 25
+
+priority_thresholds:
+  HIGH: 80
+  MEDIUM: 45
+  LOW: 15
+
+ignore_list:
+  - "Azure Linux"
+  - "Chromium"
+  - "Android"
+  - "iOS"
+  - "Linux Kernel"
+  - "Mariner"
+
+vr_scoring:
+
+  # Components weighted by research tractability (fuzzer-friendly, diffable, proven surface)
+  components:
+    "win32k":                         38
+    "Windows Common Log File System": 35
+    "Windows CLFS":                   35
+    "Windows Print Spooler":          30
+    "Windows Task Scheduler":         25
+    "Windows Installer":              25
+    "NTFS":                           30
+    "Windows Storage":                22
+    "Windows TCP/IP":                 35
+    "Windows SMB":                    35
+    "Windows RPC":                    32
+    "Remote Procedure Call":          32
+    "Windows DCOM":                   30
+    "MSHTML":                         35
+    "JScript":                        35
+    "Scripting Engine":               35
+    "Windows Script":                 30
+    "Windows DNS":                    30
+    "LDAP":                           28
+    "Windows HTTP":                   28
+    "Windows Message Queuing":        25
+    "Windows DHCP":                   25
+    "Microsoft Graphics Component":   35
+    "Windows GDI":                    32
+    "DirectWrite":                    28
+    "Windows Font":                   30
+    "OpenType":                       28
+    "TrueType":                       28
+    "Windows Uniscribe":              25
+    "Windows Codecs Library":         20
+    "Windows Imaging Component":      20
+    "HEVC Video Extensions":          20
+    "AV1 Video Extension":            20
+    "Windows Media":                  22
+    "Windows AppContainer":           32
+    "Windows Token":                  30
+    "Windows LSA":                    30
+    "Windows SAM":                    28
+    "Kerberos":                       28
+    "Windows NTLM":                   28
+    "Windows ACL":                    25
+    "Windows Authentication":         25
+    "Windows Credentials":            25
+    "Windows Security":               20
+    "Microsoft Outlook":              30
+    "Microsoft Office":               28
+    "Microsoft Word":                 28
+    "Microsoft Excel":                28
+    "Rich Text":                      25
+    "Windows Kernel":                 15
+    "Windows Driver":                 15
+    "Windows Hyper-V":                15
+    "Chakra":                         32
+    "Internet Explorer":              28
+    "Microsoft Edge":                 22
+
+  catchall_categories:
+    "Azure":          3
+    "Visual Studio":  8
+    "SQL Server":     5
+    "SharePoint":     5
+    "Exchange":       5
+    "Teams":          8
+    "OneDrive":       8
+
+  default_component_score: 5
+
+  cwe_weights:
+    "CWE-122": 22
+    "CWE-787": 22
+    "CWE-416": 20
+    "CWE-190": 20
+    "CWE-843": 18
+    "CWE-415": 18
+    "CWE-191": 18
+    "CWE-125": 16
+    "CWE-119": 16
+    "CWE-362": 14
+    "CWE-120": 14
+    "CWE-121": 14
+    "CWE-476": 12
+    "CWE-77":  10
+    "CWE-78":  10
+    "CWE-502":  8
+    "CWE-20":   8
+    "CWE-269":  6
+    "CWE-287":  4
+
+  impact_weights:
+    "Remote Code Execution":    18
+    "Elevation of Privilege":   16
+    "Security Feature Bypass":  10
+    "Information Disclosure":    8
+    "Denial of Service":         4
+    "Spoofing":                  3
+
+  attack_vector_weights:
+    "N": 15
+    "A": 10
+    "L":  8
+    "P":  2
+
+  privileges_required_weights:
+    "N": 12
+    "L":  6
+    "H":  0
+
+  user_interaction_weights:
+    "N": 8
+    "R": 4
+
+  bonuses:
+    customer_action_required:  15
+    exploit_unproven:           5
+    exploit_poc:              -10    # Deferred: no schema signal for PoC detection yet; treated as exploit_unproven
+    exploit_active:           -20
+    publicly_disclosed:        -5
+    critical_severity:          8
+    important_severity:         3
+    scope_changed:             12
+
+  thresholds:
+    PRIME:  100
+    HIGH:    70
+    MEDIUM:  45
+    LOW:     20
+
+  tag_rules:
+    mem_corrupt:
+      description: "Memory corruption bug class"
+      cwe_ids: ["CWE-122", "CWE-787", "CWE-416", "CWE-190", "CWE-843", "CWE-415",
+                 "CWE-191", "CWE-125", "CWE-119", "CWE-120", "CWE-121", "CWE-362"]
+    kernel:
+      description: "Kernel-mode component"
+      component_patterns: ["Windows Kernel", "win32k", "CLFS", "Common Log File",
+                           "NTFS", "Windows Driver", "AppContainer"]
+    remote_preauth:
+      description: "Network-reachable without authentication"
+      requires: { av: "N", pr: "N" }
+    scope_change:
+      description: "Sandbox or VM escape (Scope:Changed)"
+      requires: { scope: "Changed" }
+    novel:
+      description: "No public exploit or disclosure"
+      requires: { exploited_wild: false, publicly_disclosed: false, kev_listed: false }
+    patchable:
+      description: "KB patches available for binary diffing"
+      requires: { has_kb_entries: true }
+    high_impact:
+      description: "Remote Code Execution or Elevation of Privilege"
+      impact_values: ["Remote Code Execution", "Elevation of Privilege"]
+    info_leak:
+      description: "Information disclosure (ASLR/KASLR bypass potential)"
+      impact_values: ["Information Disclosure"]

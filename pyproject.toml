@@ -1,0 +1,13 @@
+[project]
+name = "threat2signal"
+version = "0.1.0"
+description = "CISA advisories + MSRC CVEs into structured intelligence and detection rules"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: fast isolated tests",
+    "integration: cross-module tests",
+    "slow: large fixtures or heavy processing",
+]

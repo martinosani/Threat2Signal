@@ -1,0 +1,25 @@
+<h1>Ivanti Connect Secure Vulnerability Exploitation</h1>
+<p>This advisory describes attacks exploiting <a href="https://cve.org/CVERecord?id=CVE-2025-0282">CVE-2025-0282</a> and <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-0283">CVE-2025-0283</a>.</p>
+<table>
+<thead><tr><th>Technique</th><th>ID</th><th>Use</th></tr></thead>
+<tbody>
+<tr>
+  <td>Exploit Public-Facing Application</td>
+  <td><a href="https://attack.mitre.org/techniques/T1190/">T1190</a></td>
+  <td>Exploits Ivanti Connect Secure</td>
+</tr>
+<tr>
+  <td>Ingress Tool Transfer</td>
+  <td><a href="https://attack.mitre.org/techniques/T1105/">T1105</a></td>
+  <td>Downloads additional tools</td>
+</tr>
+</tbody>
+</table>
+<h2>Cobalt Strike Configuration</h2>
+<pre>
+BeaconType = HTTPS
+Port = 443
+SleepTime = 60000
+Jitter = 50
+PublicKey_MD5 = not_a_real_hash
+</pre>

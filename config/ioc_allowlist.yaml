@@ -1,0 +1,33 @@
+domains:
+  - microsoft.com
+  - google.com
+  - cisa.gov
+  - cloudflare.com
+  - amazonaws.com
+  - azure.com
+  - windows.net
+  - office365.com
+  - live.com
+  - outlook.com
+  - github.com
+  - cloudfront.net
+  - akamaiedge.net
+  - digicert.com
+  - verisign.com
+  - letsencrypt.org
+  - mozilla.org
+  - apple.com
+  - ubuntu.com
+  - debian.org
+  - windowsupdate.com
+  - microsoftonline.com
+  - office.com
+
+ips:
+  - "8.8.8.8"
+  - "8.8.4.4"
+  - "1.1.1.1"
+  - "1.0.0.1"
+  - "9.9.9.9"
+
+hashes: []

@@ -1,0 +1,14 @@
+<h3>Detection</h3>
+<p>The following YARA rule detects the malware described above.</p>
+<div class="l-constrain">
+  <div class="OutlineElement Ltr SCXW123">
+    <h4><strong>Custom Yara rule </strong></h4>
+    <p><code>rule test_malware_d {</code></p>
+    <p><code>    strings:</code></p>
+    <p><code>        $s1 = "div_code_pattern"</code></p>
+    <p> </p>
+    <p><code>    condition:</code></p>
+    <p><code>        $s1</code></p>
+    <p><code>}</code></p>
+  </div>
+</div>

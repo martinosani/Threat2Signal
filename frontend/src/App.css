@@ -1,0 +1,353 @@
+/* ================================================================
+   CSS Custom Properties (Tokens) — Dark theme default
+   CTI analyst workstation: dark, dense, professional.
+   ================================================================ */
+
+:root {
+  /* Surfaces */
+  --bg-primary: #0f1117;
+  --bg-secondary: #151822;
+  --bg-surface: #1a1e2a;
+  --bg-hover: #232838;
+
+  /* Text */
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Borders */
+  --border: #2a2f3e;
+  --border-subtle: #1e2330;
+
+  /* Accent */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+
+  /* Semantic status */
+  --status-completed: #22c55e;
+  --status-pending: #94a3b8;
+  --status-parsed: #3b82f6;
+  --status-partial: #f59e0b;
+  --status-failed: #ef4444;
+  --status-skipped: #64748b;
+
+  /* Severity */
+  --severity-critical: #ef4444;
+  --severity-high: #f97316;
+  --severity-medium: #eab308;
+  --severity-low: #3b82f6;
+  --severity-noise: #64748b;
+
+  /* Sources */
+  --source-cisa: #60a5fa;
+  --source-acsc: #4ade80;
+  --source-jpcert: #22d3ee;
+
+  /* Maturity */
+  --maturity-foundational: #22c55e;
+  --maturity-intermediate: #f59e0b;
+  --maturity-advanced: #8b5cf6;
+
+  /* Type colors */
+  --type-aa: #fbbf24;
+  --type-ar: #60a5fa;
+  --type-alert: #94a3b8;
+  --type-acsc: #4ade80;
+  --type-jpcert: #22d3ee;
+
+  /* Triage */
+  --triage-unread: #3b82f6;
+  --triage-flagged: #f59e0b;
+
+  /* Font stacks */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Consolas, monospace;
+
+  /* Layout */
+  --sidebar-width: 220px;
+
+  /* Transitions */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.2s ease;
+}
+
+/* ================================================================
+   Light Theme Overrides
+   ================================================================ */
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-hover: #f1f5f9;
+
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+
+  --status-completed: #16a34a;
+  --status-failed: #dc2626;
+  --status-pending: #64748b;
+  --status-parsed: #2563eb;
+  --status-partial: #d97706;
+  --status-skipped: #64748b;
+
+  --triage-unread: #2563eb;
+  --triage-flagged: #d97706;
+
+  --source-cisa: #2563eb;
+  --source-acsc: #16a34a;
+  --source-jpcert: #0891b2;
+
+  --type-aa: #d97706;
+  --type-ar: #2563eb;
+  --type-alert: #64748b;
+  --type-acsc: #16a34a;
+  --type-jpcert: #0891b2;
+
+  --severity-critical: #dc2626;
+  --severity-high: #ea580c;
+  --severity-medium: #ca8a04;
+
+  --maturity-foundational: #16a34a;
+  --maturity-intermediate: #d97706;
+  --maturity-advanced: #7c3aed;
+}
+
+/* ================================================================
+   Global Reset
+   ================================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-width: 1280px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-surface);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* ================================================================
+   Layout Shell
+   ================================================================ */
+
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-logo {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 0;
+}
+
+.nav-group {
+  padding: 8px 0;
+}
+
+.nav-group-label {
+  padding: 0 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border-left: 2px solid transparent;
+}
+
+.nav-link:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.nav-link-active {
+  background: var(--bg-surface);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+/* --- Sidebar Footer --- */
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot-connected {
+  background: var(--status-completed);
+}
+
+.sidebar-user {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  transition: color var(--transition-fast);
+}
+
+.logout-btn:hover {
+  color: var(--text-primary);
+}
+
+/* --- Unread Badge --- */
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 9px;
+  padding: 0 5px;
+  margin-left: auto;
+}
+
+/* --- Main Content --- */
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+/* ================================================================
+   Scrollbar Styling (dark theme polish)
+   ================================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

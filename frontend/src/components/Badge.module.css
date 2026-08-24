@@ -1,0 +1,165 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.6;
+  /* default fallback */
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+  color: var(--text-secondary);
+}
+
+/* --- Source badges --- */
+
+.source_cisa {
+  background: color-mix(in srgb, var(--source-cisa) 15%, transparent);
+  color: var(--source-cisa);
+}
+
+.source_acsc {
+  background: color-mix(in srgb, var(--source-acsc) 15%, transparent);
+  color: var(--source-acsc);
+}
+
+.source_jpcert {
+  background: color-mix(in srgb, var(--source-jpcert) 15%, transparent);
+  color: var(--source-jpcert);
+}
+
+/* --- Type badges --- */
+
+.type_aa {
+  background: color-mix(in srgb, var(--type-aa) 15%, transparent);
+  color: var(--type-aa);
+}
+
+.type_ar {
+  background: color-mix(in srgb, var(--type-ar) 15%, transparent);
+  color: var(--type-ar);
+}
+
+.type_alert {
+  background: color-mix(in srgb, var(--type-alert) 15%, transparent);
+  color: var(--type-alert);
+}
+
+.type_acsc {
+  background: color-mix(in srgb, var(--type-acsc) 15%, transparent);
+  color: var(--type-acsc);
+}
+
+.type_jpcert {
+  background: color-mix(in srgb, var(--type-jpcert) 15%, transparent);
+  color: var(--type-jpcert);
+}
+
+/* --- Status badges --- */
+
+.status_completed {
+  background: color-mix(in srgb, var(--status-completed) 15%, transparent);
+  color: var(--status-completed);
+}
+
+.status_pending {
+  background: color-mix(in srgb, var(--status-pending) 15%, transparent);
+  color: var(--status-pending);
+}
+
+.status_failed {
+  background: color-mix(in srgb, var(--status-failed) 15%, transparent);
+  color: var(--status-failed);
+}
+
+.status_skipped {
+  background: color-mix(in srgb, var(--status-skipped) 12%, transparent);
+  color: var(--status-skipped);
+}
+
+.status_parse_done {
+  background: color-mix(in srgb, var(--status-parsed) 15%, transparent);
+  color: var(--status-parsed);
+}
+
+.status_parse_partial {
+  background: color-mix(in srgb, var(--status-partial) 15%, transparent);
+  color: var(--status-partial);
+}
+
+.status_parse_failed {
+  background: color-mix(in srgb, var(--status-failed) 15%, transparent);
+  color: var(--status-failed);
+}
+
+/* --- Priority badges --- */
+
+.priority_critical {
+  background: color-mix(in srgb, var(--severity-critical) 15%, transparent);
+  color: var(--severity-critical);
+}
+
+.priority_high {
+  background: color-mix(in srgb, var(--severity-high) 15%, transparent);
+  color: var(--severity-high);
+}
+
+.priority_medium {
+  background: color-mix(in srgb, var(--severity-medium) 15%, transparent);
+  color: var(--severity-medium);
+}
+
+.priority_low {
+  background: color-mix(in srgb, var(--severity-low) 15%, transparent);
+  color: var(--severity-low);
+}
+
+.priority_noise {
+  background: color-mix(in srgb, var(--severity-noise) 12%, transparent);
+  color: var(--severity-noise);
+}
+
+.priority_prime {
+  background: hsl(0, 72%, 50%);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* --- Severity badges --- */
+
+.severity_critical {
+  background: color-mix(in srgb, var(--severity-critical) 15%, transparent);
+  color: var(--severity-critical);
+}
+
+.severity_high {
+  background: color-mix(in srgb, var(--severity-high) 15%, transparent);
+  color: var(--severity-high);
+}
+
+.severity_medium {
+  background: color-mix(in srgb, var(--severity-medium) 15%, transparent);
+  color: var(--severity-medium);
+}
+
+.severity_important {
+  background: color-mix(in srgb, var(--severity-high) 15%, transparent);
+  color: var(--severity-high);
+}
+
+.severity_moderate {
+  background: color-mix(in srgb, var(--severity-medium) 15%, transparent);
+  color: var(--severity-medium);
+}
+
+.severity_low {
+  background: color-mix(in srgb, var(--severity-low) 15%, transparent);
+  color: var(--severity-low);
+}
+
+.severity_noise {
+  background: color-mix(in srgb, var(--severity-noise) 12%, transparent);
+  color: var(--severity-noise);
+}

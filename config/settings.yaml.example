@@ -1,0 +1,99 @@
+auth:
+  secret_key: "CHANGE_ME_generate_with_python_secrets"
+  token_expiry_hours: 24
+  users:
+    - username: "admin"
+      password_hash: "GENERATE_WITH_bcrypt"
+      role: "admin"
+
+deepseek:
+  api_key: "YOUR_DEEPSEEK_API_KEY"
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-v4-flash"
+  model_pro: "deepseek-v4-pro"
+  max_retries: 3
+  cost_rates:
+    deepseek-v4-flash:
+      input_per_1m: 0.22
+      cache_hit_per_1m: 0.007
+      output_per_1m: 0.66
+    deepseek-v4-pro:
+      input_per_1m: 1.32
+      cache_hit_per_1m: 0.014
+      output_per_1m: 3.96
+
+database:
+  path: "data/threat2signal.db"
+
+neo4j:
+  uri: "bolt://localhost:7687"
+  user: "neo4j"
+  password: "YOUR_NEO4J_PASSWORD"
+  database: "neo4j"
+
+cisa:
+  sitemap_url: "https://www.cisa.gov/default/sitemap.xml"
+  user_agent: "Mozilla/5.0 (compatible; Threat2Signal/1.0)"
+  delay_backfill_base: 8
+  delay_backfill_jitter: 4
+  delay_daily: 5
+  backfill_batch_size: 10
+  kev_url: "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+msrc:
+  rss_url: "https://api.msrc.microsoft.com/update-guide/rss"
+  cve_api_url: "https://api.msrc.microsoft.com/cvrf/v2.0/vulnerability"
+  cvrf_bulk_url: "https://api.msrc.microsoft.com/cvrf/v3.0/cvrf"
+  user_agent: "Threat2Signal/1.0"
+  daily_batch_size: 50
+
+extraction:
+  enable_rule_generation: false
+  enable_intel_extraction: false
+  intel_temperature: 0.0
+  intel_timeout: 120
+  intel_max_tokens: 8192
+  intel_thinking: "disabled"
+
+http:
+  connect_timeout: 30
+  read_timeout: 60
+  sitemap_read_timeout: 120
+
+data:
+  dir: "data"
+
+acsc:
+  rss_alerts_url: "https://www.cyber.gov.au/rss/alerts"
+  rss_advisories_url: "https://www.cyber.gov.au/rss/advisories"
+  listing_url: "https://www.cyber.gov.au/about-us/view-all-content/alerts-and-advisories"
+  user_agent: "Mozilla/5.0 (compatible; Threat2Signal/1.0)"
+  delay_backfill_base: 8
+  delay_backfill_jitter: 4
+  delay_daily: 5
+  backfill_batch_size: 10
+
+jpcert:
+  atom_url: "https://blogs.jpcert.or.jp/en/atom.xml"
+  blog_base_url: "https://blogs.jpcert.or.jp/en/"
+  categories:
+    - "malware"
+    - "incident"
+  user_agent: "Threat2Signal/1.0"
+  delay_backfill_base: 5
+  delay_backfill_jitter: 3
+  delay_daily: 3
+  backfill_batch_size: 10
+
+disk:
+  min_free_space_mb: 5120
+
+assets:
+  max_asset_bytes: 26214400  # 25 MB per-file cap on downloaded/proxied assets
+
+orkl:
+  api_base_url: "https://orkl.eu/api/v1"
+  batch_size: 20
+  delay_between_requests: 1.0
+  language_filter: "EN"
+  min_extraction_quality: 1

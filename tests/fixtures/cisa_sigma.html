@@ -1,0 +1,7 @@
+<h3>Detection Rules</h3>
+<table>
+<thead><tr><th>Sigma Rule</th></tr></thead>
+<tbody>
+<tr><td><p>title: Suspicious Process Execution</p><p>status: experimental</p><p>logsource:</p><p>    category: process_creation</p><p>    product: windows</p><p>detection:</p><p>    selection:</p><p>        CommandLine|contains: 'evil.exe'</p><p>    condition: selection</p></td></tr>
+</tbody>
+</table>

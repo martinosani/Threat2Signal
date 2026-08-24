@@ -1,0 +1,16 @@
+doc/worksets/
+doc/DESIGN.md
+doc/CODING.md
+doc/ADVISORY_ANALYSIS.md
+doc/CTI_ADVISORY_SOURCES.html
+
+CLAUDE.md
+.claude
+
+pyghidra_mcp_projects
+
+.venv
+.pytest_cache
+
+config/settings.yaml
+data/
