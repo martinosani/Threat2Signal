@@ -133,6 +133,7 @@ Requires Python 3.12+.
    - `deepseek.api_key` -- for LLM extraction and analysis
    - `auth.secret_key` -- run `python -m threat2signal generate-secret`
    - `auth.users[0].password_hash` -- run `python -m threat2signal hash-password`
+   - Default credentials: `admin` / `admin`
 
 2. Initialize the database:
    ```bash

@@ -52,7 +52,7 @@ type PopoverState =
 // DOMPurify configuration
 // ---------------------------------------------------------------------------
 
-const PURIFY_CONFIG: DOMPurify.Config = {
+const PURIFY_CONFIG = {
   ADD_ATTR: [
     'data-ioc-type',
     'data-ioc-value',
@@ -259,7 +259,7 @@ export function OverviewTab({ advisory, onSwitchToRaw }: OverviewTabProps) {
     if (!source) return null;
     DOMPurify.addHook('afterSanitizeAttributes', forceRelHook);
     try {
-      return DOMPurify.sanitize(source, PURIFY_CONFIG);
+      return DOMPurify.sanitize(source, PURIFY_CONFIG) as string;
     } finally {
       DOMPurify.removeHook('afterSanitizeAttributes');
     }

@@ -27,7 +27,7 @@ interface DimensionRow {
   color: string;
 }
 
-export function ScoreBreakdown({ breakdown, variant = 'defense' }: ScoreBreakdownProps) {
+export function ScoreBreakdown({ breakdown, variant: _variant = 'defense' }: ScoreBreakdownProps) {
   const bonusTotal = breakdown.bonuses.reduce((s, b) => s + b.score, 0);
 
   const dimensions: DimensionRow[] = [

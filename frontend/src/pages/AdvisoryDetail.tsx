@@ -303,7 +303,7 @@ export default function AdvisoryDetail() {
   // -- Mutations --
 
   const analyzeMutation = useMutation({
-    mutationFn: (force = false) => triggerAnalysis(advisoryId!, force),
+    mutationFn: (force?: boolean) => triggerAnalysis(advisoryId!, force ?? false),
     onSuccess: (data) => {
       queryClient.setQueryData(['analysis', advisoryId], data);
       setSearchParams({ tab: 'analysis' });
@@ -389,7 +389,7 @@ export default function AdvisoryDetail() {
     if (analysis) {
       setConfirmOpen(true);
     } else {
-      analyzeMutation.mutate();
+      analyzeMutation.mutate(false);
     }
   }, [analysis, analyzeMutation]);
 

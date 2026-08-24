@@ -6,7 +6,6 @@ import type {
   AnalysisResult,
   RedTeamActivity,
   BlueTeamActivity,
-  PurpleTeamExercise,
   SecurityPostureItem,
   ExecutionReference,
   SuccessCriteriaTiered,

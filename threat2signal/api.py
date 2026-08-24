@@ -125,7 +125,7 @@ def _extract_bearer_token(request: Request) -> str:
 
 async def require_auth(request: Request) -> None:
     """Reject unauthenticated requests. Only /api/auth/login is exempt."""
-    if request.url.path in _PUBLIC_PATHS:
+    if request.url.path in _PUBLIC_PATHS or not request.url.path.startswith("/api/"):
         return
     auth_cfg = request.app.state.settings["auth"]
     token = _extract_bearer_token(request)
@@ -1090,4 +1090,13 @@ async def serve_file(
 # Serve built frontend when available; Vite dev proxy handles this during dev
 _dist_dir = PROJECT_ROOT / "frontend" / "dist"
 if _dist_dir.exists():
-    app.mount("/", StaticFiles(directory=str(_dist_dir), html=True), name="spa")
+    _index_html = _dist_dir / "index.html"
+    app.mount("/assets", StaticFiles(directory=str(_dist_dir / "assets")), name="static-assets")
+
+    @app.get("/{full_path:path}", response_model=None, include_in_schema=False)
+    async def _spa_fallback(full_path: str) -> FileResponse | Response:
+        """Serve static files if they exist, otherwise index.html for SPA routing."""
+        candidate = _dist_dir / full_path
+        if full_path and candidate.is_file() and _dist_dir in candidate.resolve().parents:
+            return FileResponse(candidate)
+        return FileResponse(_index_html)
