@@ -1,7 +1,7 @@
 [project]
 name = "threat2signal"
 version = "0.1.0"
-description = "CISA advisories + MSRC CVEs into structured intelligence and detection rules"
+description = "CTI advisories + MSRC CVEs into structured intelligence signal"
 requires-python = ">=3.12"
 
 [tool.pytest.ini_options]
