@@ -2,9 +2,17 @@
 
 The Feed is the main page. It lists all ingested advisories from CISA, ACSC, JPCERT, and ORKL in a single table. Navigate to it from the sidebar under Intelligence > Feed.
 
+![Feed View](images/Feed%20View.png)
+
+## Stats header
+
+Collapsible bar at the top. Shows total advisories, count per source, extraction progress (done/processing/issues), last poll time, and LLM cost breakdown when available.
+
+In the screenshot above you can see 21 total advisories split across ACSC (6), CISA (6), JPCERT (4), and ORKL (5). The extraction column on the right shows all 21 are Done. Last poll was about 1 hour ago. Cost and token stats are in the top-right corner.
+
 ## Advisory table
 
-50 advisories per page. Columns: triage status, ID, source, type, title, date, extraction status.
+50 advisories per page. Columns: triage status, ID, source, type, title, date, extraction status. All column headers are sortable -- click to sort, click again to reverse. The current sort column gets a ▼ or ▲ indicator.
 
 Click a row to open its detail page. New advisories (since your last visit) get a blue left border.
 
@@ -22,29 +30,21 @@ Everything stacks (AND logic). All filters are in the URL, so you can bookmark o
 
 "Clear filters" resets everything.
 
-## Stats header
-
-Collapsible bar at the top. Shows total advisories, count per source, extraction progress (done/processing/issues), last poll time, and LLM cost breakdown when available.
-
 ---
 
-# Advisory detail
+# Advisory Detail
 
 Two-column layout: tabbed content on the left, sidebar on the right. The sidebar hides when the Analysis tab is active to give it full width.
 
-## Header actions
+![Advisory Detail View](images/Advisory%20Detail%20View.png)
 
-**Triage dropdown** -- mark the advisory as Unread, Reviewed, or Flagged. Persists immediately.
-
-**Analyze button** -- sends the advisory to DeepSeek for tactical/strategic analysis. Shows a cost confirmation (~$0.02, 5-15s). If analysis already exists, becomes "Re-analyze" with a warning dialog.
-
-**Extraction alert** -- amber or red banner when extraction had warnings or errors. Click "Show details" to see the log.
+The header shows the advisory title, source badge, type, publication date, a link to the original, and the extraction status. On the right: triage dropdown and the Analyze/Re-analyze button.
 
 ## Sidebar
 
-**Extraction telemetry** -- status, IOC count, rules count, techniques count, model used, token counts, latency, cost.
+**Extraction telemetry** -- status, IOC count, rules count, techniques count, D3FEND count, extraction timestamp, model used, token counts (in/out), latency, cost.
 
-**MITRE ATT&CK** -- techniques grouped by tactic in kill-chain order. Each technique shows ID, name, and confidence (Stated/Extracted/Inferred). "Export Navigator" button downloads a Navigator JSON layer file.
+**MITRE ATT&CK** -- techniques grouped by tactic in kill-chain order. Each technique shows ID, name, and count. "Export Navigator" button downloads a Navigator JSON layer file you can load in the ATT&CK Navigator.
 
 **Linked CVEs** -- CVE IDs found in the advisory. MSRC CVEs link to the MSRC detail page with defense score. Others link to NVD.
 
@@ -52,31 +52,37 @@ Two-column layout: tabbed content on the left, sidebar on the right. The sidebar
 
 ## Tabs
 
-Switch with clicks or keyboard shortcuts 1-6. Tabs only appear when they have data.
+Switch with clicks or keyboard shortcuts 1-6. Tabs show a count badge when they have data.
 
 ### Overview (1)
 
-Top section: title, date, summary, threat actors, malware/tools, sectors.
+Top section: metadata cards for advisory information (title, date), threat actors, malware/tools, and targeted sectors.
 
-Below that: the full article body with inline annotations. Hover an IOC to see its type, value, validation status, and a copy button. Hover a MITRE technique reference to see ID, name, tactic, and a link to the MITRE page.
+Below that: the full article body with inline annotations. Hover an IOC to see its type, value, validation status, and a copy button. Hover a MITRE technique reference to see ID, name, tactic, and a link to the MITRE page. The "Enriched" badge at the top of the article means IOC/technique annotations are active.
 
 Bottom: table of CVEs referenced in the advisory.
 
 ### Behaviors (2)
 
-Extracted threat behaviors mapped to MITRE techniques. Filter by confidence: Stated, Extracted, Inferred. Grouped by tactic in kill-chain order. Each card shows the behavior description, technique ID, and tactic.
+![Behaviors tab](images/Advisory%20Detail%20View%20-%20Behaviors.png)
+
+Extracted threat behaviors mapped to MITRE techniques. Grouped by tactic in kill-chain order (Credential Access, Command and Control, Privilege Escalation, etc.).
+
+Filter by confidence at the top: All, Stated, Extracted, Inferred. Each card shows the behavior description, the MITRE technique ID badge (e.g. T1003.003), tactic name, and an "Extracted" label showing how it was identified.
 
 ### IOCs (3)
 
-All IOCs extracted from the advisory.
+![IOCs tab](images/Advisory%20Detail%20View%20-%20IOCs.png)
+
+All IOCs extracted from the advisory. The example above shows 159 IOCs from the BRICKSTORM advisory.
 
 **Search** -- free text, matches value or context.
 
-**Type filter chips** -- All, Hashes, Network, File Artifacts, Allowlisted, Needs Review.
+**Type filter chips** -- All, Hashes, Network, File Artifacts, Allowlisted, Needs Review (with count badge).
 
 **Bulk actions** -- Copy All, Export CSV, Export STIX 2.1.
 
-Table columns: type, value (monospace + copy button), context, source (Stated/Extracted/Parsed/Allowlisted), validation (valid/invalid/suspicious), cross-reference count.
+Table columns: type (MD5, SHA1, SHA256, SHA512, SSDEEP, etc.), value (monospace + copy button), context, source (Stated/Extracted/Parsed), validation (Verified/Suspicious/Invalid), cross-reference count.
 
 ### Detection (4)
 
@@ -84,21 +90,7 @@ Detection rules grouped by format: YARA, Sigma, Snort. Each rule is expandable -
 
 ### Analysis (5)
 
-LLM-generated tactical and strategic analysis. Has its own sub-tabs:
-
-**Red Team** -- attack scenarios with MITRE mappings, priority levels, execution references (Atomic Red Team, Sigma, tools).
-
-**Blue Team** -- defensive gaps found in the advisory. Each card shows the gap, interpretation, MITRE techniques, validation method, and detection rule references.
-
-**Purple Team** -- exercise table mapping red actions to blue countermeasures along the kill chain. Columns: phase, exercise, red action, blue measures, techniques, success criteria.
-
-**Findings** -- incident lessons or capability gaps with impact and recommendations.
-
-**Security Posture** -- strategic assessment cards grouped by category. Each shows priority, maturity level (Foundational/Intermediate/Advanced), key insight, gap analysis, and framework references.
-
-Each sub-tab has its own filters (priority, maturity, detection coverage).
-
-Shows metadata at the bottom: model, timestamp, tokens, latency, cost. Stale analysis banner appears when the advisory was re-extracted after the analysis was generated.
+LLM-generated tactical and strategic analysis. See the separate [analysis howto](analysis.md) for details.
 
 ### Source HTML (6)
 
@@ -106,11 +98,11 @@ Raw view. Three sections: the original article HTML, the extracted JSON output, 
 
 ---
 
-# Other Intelligence pages
+# Other Intelligence Pages
 
 ## Technique Matrix
 
-Sidebar: Intelligence > Technique Matrix. Placeholder for now -- will show an ATT&CK matrix view once extraction populates technique data.
+Sidebar: Intelligence > Technique Matrix. Placeholder -- will show an ATT&CK matrix heatmap.
 
 ## Actors & Malware
 
