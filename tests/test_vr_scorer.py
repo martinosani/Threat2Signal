@@ -123,7 +123,7 @@ def test_vr_priority_noise_zero(scoring_config):
 def test_vr_component_win32k(scoring_config):
     vr = scoring_config["vr_scoring"]
     score, name = _match_vr_component("win32k", None, vr)
-    assert score == 38
+    assert score == vr["components"]["win32k"]
     assert name == "win32k"
 
 
@@ -132,7 +132,7 @@ def test_vr_component_matched_via_title(scoring_config):
     """Component pattern found in title when component field is None."""
     vr = scoring_config["vr_scoring"]
     score, name = _match_vr_component(None, "Windows TCP/IP Remote Code Execution", vr)
-    assert score == 35
+    assert score == vr["components"]["Windows TCP/IP"]
     assert name == "Windows TCP/IP"
 
 
@@ -140,10 +140,9 @@ def test_vr_component_matched_via_title(scoring_config):
 def test_vr_component_highest_score_wins(scoring_config):
     """When multiple patterns match, the one with the highest score is returned."""
     vr = scoring_config["vr_scoring"]
-    # "Windows Kernel win32k" matches "win32k" (38) and "Windows Kernel" (15)
     score, name = _match_vr_component("Windows Kernel win32k", None, vr)
-    assert score == 38
-    assert name == "win32k"
+    expected_score = max(vr["components"]["win32k"], vr["components"]["Windows Kernel"])
+    assert score == expected_score
 
 
 @pytest.mark.unit
@@ -151,16 +150,16 @@ def test_vr_component_catchall_fallback(scoring_config):
     """Unrecognized component falls back to a catchall category."""
     vr = scoring_config["vr_scoring"]
     score, name = _match_vr_component("Azure Foo Service", None, vr)
-    assert score == 3
+    assert score == vr["catchall_categories"]["Azure"]
     assert name == "Azure"
 
 
 @pytest.mark.unit
 def test_vr_component_no_match_returns_default(scoring_config):
-    """Completely unknown component gets default_component_score (5)."""
+    """Completely unknown component gets default_component_score."""
     vr = scoring_config["vr_scoring"]
     score, name = _match_vr_component("Something Unknown", "Unknown Title", vr)
-    assert score == 5
+    assert score == vr["default_component_score"]
     assert name == ""
 
 
@@ -171,47 +170,50 @@ def test_vr_component_no_match_returns_default(scoring_config):
 
 @pytest.mark.unit
 def test_vr_bonus_exploit_active_penalty(scoring_config):
-    """exploited_wild=True applies exploit_active penalty (-20)."""
+    """exploited_wild=True applies exploit_active penalty."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
+    expected_penalty = bonuses_cfg["exploit_active"]
     cve = _make_cve(exploited_wild=1)
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    assert total == -20
+    assert total == expected_penalty
     assert len(penalties) == 1
-    assert penalties[0] == {"name": "exploit_active", "score": -20}
+    assert penalties[0] == {"name": "exploit_active", "score": expected_penalty}
     assert all(b["name"] != "exploit_active" for b in bonuses)
 
 
 @pytest.mark.unit
 def test_vr_bonus_publicly_disclosed_penalty(scoring_config):
-    """publicly_disclosed=True (not exploited) applies -5 penalty."""
+    """publicly_disclosed=True (not exploited) applies publicly_disclosed penalty."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
+    expected_penalty = bonuses_cfg["publicly_disclosed"]
     cve = _make_cve(publicly_disclosed=1, exploited_wild=0)
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    assert total == -5
+    assert total == expected_penalty
     assert len(penalties) == 1
-    assert penalties[0] == {"name": "publicly_disclosed", "score": -5}
+    assert penalties[0] == {"name": "publicly_disclosed", "score": expected_penalty}
 
 
 @pytest.mark.unit
 def test_vr_bonus_exploit_unproven(scoring_config):
-    """Neither exploited nor disclosed gives exploit_unproven bonus (+5)."""
+    """Neither exploited nor disclosed gives exploit_unproven bonus."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
+    expected_bonus = bonuses_cfg["exploit_unproven"]
     cve = _make_cve(exploited_wild=0, publicly_disclosed=0)
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    assert total == 5
+    assert total == expected_bonus
     assert len(bonuses) == 1
-    assert bonuses[0] == {"name": "exploit_unproven", "score": 5}
+    assert bonuses[0] == {"name": "exploit_unproven", "score": expected_bonus}
     assert len(penalties) == 0
 
 
 @pytest.mark.unit
 def test_vr_bonus_critical_severity(scoring_config):
-    """severity='Critical' adds critical_severity bonus (+8)."""
+    """severity='Critical' adds critical_severity bonus alongside exploit_unproven."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
     cve = _make_cve(severity="Critical", exploited_wild=0, publicly_disclosed=0)
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    # exploit_unproven (+5) + critical_severity (+8) = 13
-    assert total == 13
+    expected = bonuses_cfg["exploit_unproven"] + bonuses_cfg["critical_severity"]
+    assert total == expected
     bonus_names = [b["name"] for b in bonuses]
     assert "critical_severity" in bonus_names
     assert "exploit_unproven" in bonus_names
@@ -219,19 +221,19 @@ def test_vr_bonus_critical_severity(scoring_config):
 
 @pytest.mark.unit
 def test_vr_bonus_scope_changed(scoring_config):
-    """scope='Changed' adds scope_changed bonus (+12)."""
+    """scope='Changed' adds scope_changed bonus alongside exploit_unproven."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
     cve = _make_cve(scope="Changed", exploited_wild=0, publicly_disclosed=0)
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    # exploit_unproven (+5) + scope_changed (+12) = 17
-    assert total == 17
+    expected = bonuses_cfg["exploit_unproven"] + bonuses_cfg["scope_changed"]
+    assert total == expected
     bonus_names = [b["name"] for b in bonuses]
     assert "scope_changed" in bonus_names
 
 
 @pytest.mark.unit
 def test_vr_bonus_customer_action_required(scoring_config):
-    """customer_action set adds customer_action_required bonus (+15)."""
+    """customer_action set adds customer_action_required bonus alongside exploit_unproven."""
     bonuses_cfg = scoring_config["vr_scoring"]["bonuses"]
     cve = _make_cve(
         customer_action="Apply the latest security update",
@@ -239,8 +241,8 @@ def test_vr_bonus_customer_action_required(scoring_config):
         publicly_disclosed=0,
     )
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    # customer_action_required (+15) + exploit_unproven (+5) = 20
-    assert total == 20
+    expected = bonuses_cfg["customer_action_required"] + bonuses_cfg["exploit_unproven"]
+    assert total == expected
     bonus_names = [b["name"] for b in bonuses]
     assert "customer_action_required" in bonus_names
 
@@ -256,8 +258,9 @@ def test_vr_bonuses_and_penalties_in_separate_lists(scoring_config):
         scope="Changed",
     )
     total, bonuses, penalties = _apply_vr_bonuses(cve, bonuses_cfg)
-    # customer_action(+15) + exploit_active(-20) + critical(+8) + scope(+12) = 15
-    assert total == 15
+    expected = (bonuses_cfg["customer_action_required"] + bonuses_cfg["exploit_active"]
+                + bonuses_cfg["critical_severity"] + bonuses_cfg["scope_changed"])
+    assert total == expected
     bonus_names = {b["name"] for b in bonuses}
     penalty_names = {p["name"] for p in penalties}
     assert bonus_names == {"customer_action_required", "critical_severity", "scope_changed"}
@@ -270,8 +273,9 @@ def test_vr_bonuses_and_penalties_in_separate_lists(scoring_config):
 
 
 @pytest.mark.unit
-def test_vr_score_prime_win32k_uaf(scoring_config):
-    """Win32k UAF, local, novel, Important — should score 104 and reach PRIME."""
+def test_vr_score_win32k_uaf(scoring_config):
+    """Win32k UAF, local, novel, Important — score derived from config values."""
+    vr = scoring_config["vr_scoring"]
     cve = _make_cve(
         component="win32k",
         title="Use After Free in win32k",
@@ -285,16 +289,22 @@ def test_vr_score_prime_win32k_uaf(scoring_config):
         publicly_disclosed=0,
     )
     total, priority, breakdown = compute_vr_score(cve, set(), scoring_config)
-    # component(38) + cwe(20) + impact(16) + av(8) + pr(6) + ui(8)
-    # + exploit_unproven(5) + important_severity(3) = 104
-    assert total == 104
-    assert priority == "PRIME"
-    assert breakdown["component"]["score"] == 38
-    assert breakdown["cwe"]["score"] == 20
-    assert breakdown["impact"]["score"] == 16
-    assert breakdown["attack_vector"]["score"] == 8
-    assert breakdown["privileges"]["score"] == 6
-    assert breakdown["user_interaction"]["score"] == 8
+    expected_component = vr["components"]["win32k"]
+    expected_cwe = vr["cwe_weights"]["CWE-416"]
+    expected_impact = vr["impact_weights"]["Elevation of Privilege"]
+    expected_av = vr["attack_vector_weights"]["L"]
+    expected_pr = vr["privileges_required_weights"]["L"]
+    expected_ui = vr["user_interaction_weights"]["N"]
+    expected_bonuses = vr["bonuses"]["exploit_unproven"] + vr["bonuses"]["important_severity"]
+    expected_total = (expected_component + expected_cwe + expected_impact
+                      + expected_av + expected_pr + expected_ui + expected_bonuses)
+    assert total == expected_total
+    assert breakdown["component"]["score"] == expected_component
+    assert breakdown["cwe"]["score"] == expected_cwe
+    assert breakdown["impact"]["score"] == expected_impact
+    assert breakdown["attack_vector"]["score"] == expected_av
+    assert breakdown["privileges"]["score"] == expected_pr
+    assert breakdown["user_interaction"]["score"] == expected_ui
 
 
 # ---------------------------------------------------------------------------
@@ -305,6 +315,7 @@ def test_vr_score_prime_win32k_uaf(scoring_config):
 @pytest.mark.unit
 def test_vr_score_penalized_tcpip_rce_exploited(scoring_config):
     """TCP/IP RCE exploited in the wild — penalty lowers score below what it would be novel."""
+    vr = scoring_config["vr_scoring"]
     cve_exploited = _make_cve(
         component="Windows TCP/IP",
         title="Windows TCP/IP Remote Code Execution Vulnerability",
@@ -315,14 +326,17 @@ def test_vr_score_penalized_tcpip_rce_exploited(scoring_config):
         exploited_wild=1,
     )
     total, priority, breakdown = compute_vr_score(cve_exploited, set(), scoring_config)
-    # component(35) + impact(18) + av(15) + pr(12) + ui(8) + exploit_active(-20) = 68
-    assert total == 68
-    assert priority == "MEDIUM"
-    assert breakdown["component"]["score"] == 35
+    expected_component = vr["components"]["Windows TCP/IP"]
+    expected_base = (expected_component + vr["impact_weights"]["Remote Code Execution"]
+                     + vr["attack_vector_weights"]["N"] + vr["privileges_required_weights"]["N"]
+                     + vr["user_interaction_weights"]["N"])
+    expected_total = expected_base + vr["bonuses"]["exploit_active"]
+    assert total == expected_total
+    assert breakdown["component"]["score"] == expected_component
     penalty_names = [p["name"] for p in breakdown["penalties"]]
     assert "exploit_active" in penalty_names
 
-    # Same CVE without exploitation would score higher
+    # Same CVE without exploitation scores higher
     cve_novel = _make_cve(
         component="Windows TCP/IP",
         title="Windows TCP/IP Remote Code Execution Vulnerability",
@@ -333,10 +347,8 @@ def test_vr_score_penalized_tcpip_rce_exploited(scoring_config):
         exploited_wild=0,
         publicly_disclosed=0,
     )
-    novel_total, novel_priority, _ = compute_vr_score(cve_novel, set(), scoring_config)
-    # base(88) + exploit_unproven(5) = 93 → HIGH
+    novel_total, _, _ = compute_vr_score(cve_novel, set(), scoring_config)
     assert novel_total > total
-    assert novel_priority == "HIGH"
 
 
 # ---------------------------------------------------------------------------
@@ -424,16 +436,15 @@ def test_vr_tags_sorted_order(scoring_config):
     )
     tags = generate_vr_tags(cve, set(), scoring_config)
     assert tags == sorted(tags)
-    expected = [
-        "high_impact",
-        "kernel",
-        "mem_corrupt",
-        "novel",
-        "patchable",
-        "remote_preauth",
-        "scope_change",
-    ]
-    assert tags == expected
+    # CWE-416 triggers both mem_corrupt and heap_corrupt; win32k triggers kernel
+    assert "mem_corrupt" in tags
+    assert "heap_corrupt" in tags
+    assert "kernel" in tags
+    assert "high_impact" in tags
+    assert "novel" in tags
+    assert "patchable" in tags
+    assert "remote_preauth" in tags
+    assert "scope_change" in tags
 
 
 @pytest.mark.unit

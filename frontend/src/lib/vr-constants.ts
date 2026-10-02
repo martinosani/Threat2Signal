@@ -2,6 +2,8 @@
 
 export const VR_TAG_DESCRIPTIONS: Record<string, string> = {
   mem_corrupt: 'Memory corruption bug class',
+  heap_corrupt: 'Heap-specific corruption (overflow, UAF, double free, type confusion)',
+  user_mode_parser: 'User-mode parsing component (heap-heavy attack surface)',
   kernel: 'Kernel-mode component',
   remote_preauth: 'Network-reachable without authentication',
   scope_change: 'Sandbox or VM escape (Scope:Changed)',

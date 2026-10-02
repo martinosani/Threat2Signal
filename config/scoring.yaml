@@ -68,63 +68,83 @@ ignore_list:
 
 vr_scoring:
 
-  # Components weighted by research tractability (fuzzer-friendly, diffable, proven surface)
+  # Components weighted for user-mode heap exploitation research:
+  # parsers, scripting engines, renderers, and COM/RPC surfaces score highest;
+  # kernel-mode components are demoted (different allocator, different research).
   components:
-    "win32k":                         38
-    "Windows Common Log File System": 35
-    "Windows CLFS":                   35
-    "Windows Print Spooler":          30
-    "Windows Task Scheduler":         25
-    "Windows Installer":              25
-    "NTFS":                           30
-    "Windows Storage":                22
-    "Windows TCP/IP":                 35
-    "Windows SMB":                    35
-    "Windows RPC":                    32
-    "Remote Procedure Call":          32
+    # --- Tier 1: user-mode heap-heavy attack surfaces (38) ---
+    "MSHTML":                         38
+    "JScript":                        38
+    "Scripting Engine":               38
+    "Chakra":                         38
+    "Microsoft Graphics Component":   38
+
+    # --- Tier 2: parsers, renderers, RPC/COM surfaces (32-36) ---
+    "Windows GDI":                    36
+    "DirectWrite":                    35
+    "Windows Font":                   35
+    "OpenType":                       35
+    "TrueType":                       35
+    "Windows Uniscribe":              35
+    "Internet Explorer":              35
+    "Windows OLE":                    32
+    "Windows Codecs Library":         32
+    "Windows Imaging Component":      32
+    "HEVC Video Extensions":          32
+    "AV1 Video Extension":            32
+    "Microsoft Outlook":              32
+    "Microsoft Office":               32
+    "Microsoft Word":                 32
+    "Microsoft Excel":                32
+    "Windows RPC":                    30
+    "Remote Procedure Call":          30
     "Windows DCOM":                   30
-    "MSHTML":                         35
-    "JScript":                        35
-    "Scripting Engine":               35
+    "Windows COM":                    30
     "Windows Script":                 30
     "Windows DNS":                    30
+    "Microsoft Edge":                 30
+    "Rich Text":                      30
+    "Windows Shell":                  30
+
+    # --- Tier 3: network/messaging surfaces with heap usage (25-28) ---
+    "Windows TCP/IP":                 28
+    "Windows SMB":                    28
     "LDAP":                           28
     "Windows HTTP":                   28
+    "Windows Media":                  28
+    "Windows Print Spooler":          25
+    "Windows Task Scheduler":         25
+    "Windows Installer":              25
     "Windows Message Queuing":        25
     "Windows DHCP":                   25
-    "Microsoft Graphics Component":   35
-    "Windows GDI":                    32
-    "DirectWrite":                    28
-    "Windows Font":                   30
-    "OpenType":                       28
-    "TrueType":                       28
-    "Windows Uniscribe":              25
-    "Windows Codecs Library":         20
-    "Windows Imaging Component":      20
-    "HEVC Video Extensions":          20
-    "AV1 Video Extension":            20
-    "Windows Media":                  22
-    "Windows AppContainer":           32
-    "Windows Token":                  30
-    "Windows LSA":                    30
-    "Windows SAM":                    28
-    "Kerberos":                       28
-    "Windows NTLM":                   28
-    "Windows ACL":                    25
-    "Windows Authentication":         25
-    "Windows Credentials":            25
-    "Windows Security":               20
-    "Microsoft Outlook":              30
-    "Microsoft Office":               28
-    "Microsoft Word":                 28
-    "Microsoft Excel":                28
-    "Rich Text":                      25
-    "Windows Kernel":                 15
-    "Windows Driver":                 15
-    "Windows Hyper-V":                15
-    "Chakra":                         32
-    "Internet Explorer":              28
-    "Microsoft Edge":                 22
+    "Windows Defender":               25
+    "Windows XPS":                    25
+    "Windows Compressed Folder":      28
+
+    # --- Tier 4: auth/token/security surfaces (20-25) ---
+    "Windows Token":                  22
+    "Windows LSA":                    22
+    "Windows SAM":                    22
+    "Kerberos":                       22
+    "Windows NTLM":                   22
+    "Windows ACL":                    20
+    "Windows Authentication":         20
+    "Windows Credentials":            20
+    "Windows Security":               18
+    "Windows Storage":                18
+    "Windows Fax":                    22
+    "Windows Address Book":           22
+    "Windows Contacts":               22
+
+    # --- Tier 5: kernel-mode (demoted — not user-mode heap) ---
+    "win32k":                         15
+    "Windows AppContainer":           15
+    "Windows Kernel":                  8
+    "Windows Common Log File System": 10
+    "Windows CLFS":                   10
+    "NTFS":                           10
+    "Windows Driver":                  5
+    "Windows Hyper-V":                 8
 
   catchall_categories:
     "Azure":          3
@@ -138,31 +158,31 @@ vr_scoring:
   default_component_score: 5
 
   cwe_weights:
-    "CWE-122": 22
-    "CWE-787": 22
-    "CWE-416": 20
-    "CWE-190": 20
-    "CWE-843": 18
-    "CWE-415": 18
-    "CWE-191": 18
-    "CWE-125": 16
-    "CWE-119": 16
-    "CWE-362": 14
-    "CWE-120": 14
-    "CWE-121": 14
-    "CWE-476": 12
-    "CWE-77":  10
-    "CWE-78":  10
-    "CWE-502":  8
-    "CWE-20":   8
-    "CWE-269":  6
-    "CWE-287":  4
+    "CWE-122": 22    # Heap-based Buffer Overflow
+    "CWE-787": 22    # Out-of-bounds Write
+    "CWE-416": 22    # Use After Free
+    "CWE-415": 22    # Double Free
+    "CWE-190": 20    # Integer Overflow (heap size calc corruption)
+    "CWE-843": 20    # Type Confusion (object replacement in heap spray)
+    "CWE-191": 18    # Integer Underflow
+    "CWE-125": 16    # Out-of-bounds Read (info leak for ASLR bypass)
+    "CWE-119": 16    # Buffer Overflow (generic)
+    "CWE-362": 16    # Race Condition (races on heap objects -> UAF)
+    "CWE-120": 14    # Classic Buffer Overflow
+    "CWE-121": 14    # Stack-based Buffer Overflow
+    "CWE-476":  6    # NULL Pointer Deref (rarely exploitable for heap research)
+    "CWE-77":  10    # Command Injection
+    "CWE-78":  10    # OS Command Injection
+    "CWE-502":  8    # Deserialization
+    "CWE-20":   8    # Improper Input Validation
+    "CWE-269":  3    # Improper Privilege Management (logic, not heap)
+    "CWE-287":  2    # Improper Authentication (logic, not heap)
 
   impact_weights:
     "Remote Code Execution":    18
     "Elevation of Privilege":   16
     "Security Feature Bypass":  10
-    "Information Disclosure":    8
+    "Information Disclosure":   14   # Info leaks critical for heap ASLR bypass chaining
     "Denial of Service":         4
     "Spoofing":                  3
 
@@ -185,9 +205,9 @@ vr_scoring:
     customer_action_required:  15
     exploit_unproven:           5
     exploit_poc:              -10    # Deferred: no schema signal for PoC detection yet; treated as exploit_unproven
-    exploit_active:           -20
+    exploit_active:           -15    # Reduced penalty: active heap exploits are instructive for technique study
     publicly_disclosed:        -5
-    critical_severity:          8
+    critical_severity:         10    # Critical + mem_corrupt = higher chance of RCE-grade heap bug
     important_severity:         3
     scope_changed:             12
 
@@ -202,6 +222,19 @@ vr_scoring:
       description: "Memory corruption bug class"
       cwe_ids: ["CWE-122", "CWE-787", "CWE-416", "CWE-190", "CWE-843", "CWE-415",
                  "CWE-191", "CWE-125", "CWE-119", "CWE-120", "CWE-121", "CWE-362"]
+    heap_corrupt:
+      description: "Heap-specific corruption (overflow, UAF, double free, type confusion)"
+      cwe_ids: ["CWE-122", "CWE-416", "CWE-415", "CWE-843", "CWE-787", "CWE-190", "CWE-191"]
+    user_mode_parser:
+      description: "User-mode parsing component (heap-heavy attack surface)"
+      component_patterns: ["MSHTML", "JScript", "Scripting Engine", "Chakra",
+                           "Graphics Component", "GDI", "DirectWrite", "Font",
+                           "OpenType", "TrueType", "Uniscribe", "Codecs",
+                           "Imaging Component", "HEVC", "AV1", "Windows Media",
+                           "Microsoft Office", "Microsoft Word", "Microsoft Excel",
+                           "Rich Text", "Internet Explorer", "Windows OLE",
+                           "Windows Shell", "Windows Defender", "Windows COM",
+                           "Windows Fax", "Windows XPS", "Compressed Folder"]
     kernel:
       description: "Kernel-mode component"
       component_patterns: ["Windows Kernel", "win32k", "CLFS", "Common Log File",

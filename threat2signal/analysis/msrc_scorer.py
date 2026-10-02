@@ -361,6 +361,10 @@ def generate_vr_tags(
 
     if cve.get("cwe_id") in rules["mem_corrupt"]["cwe_ids"]:
         tags.append("mem_corrupt")
+    if cve.get("cwe_id") in rules.get("heap_corrupt", {}).get("cwe_ids", []):
+        tags.append("heap_corrupt")
+    if any(p.lower() in combined for p in rules.get("user_mode_parser", {}).get("component_patterns", [])):
+        tags.append("user_mode_parser")
     if any(p.lower() in combined for p in rules["kernel"]["component_patterns"]):
         tags.append("kernel")
     if (cve.get("av") or "").upper() == "N" and (cve.get("pr") or "").upper() == "N":
