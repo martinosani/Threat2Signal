@@ -484,7 +484,11 @@ def _run_scrape_phases(
     if updated_entries:
         for e in updated_entries:
             db.upsert_advisory(conn, {
-                "advisory_id": e.advisory_id, "sitemap_lastmod": e.lastmod,
+                "advisory_id": e.advisory_id,
+                "sitemap_lastmod": e.lastmod,
+                "type": e.advisory_type,
+                "source": "cisa",
+                "link": e.url,
             })
         updated_dicts = [{"advisory_id": e.advisory_id, "link": e.url} for e in updated_entries]
         _merge_counts(counts, scrape_batch(

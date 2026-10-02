@@ -1,5 +1,6 @@
 """MSRC API client for CVE discovery and enrichment."""
 
+import datetime
 import json
 import logging
 import re
@@ -433,8 +434,18 @@ def _backfill_month(
 # -- Orchestrators (A.12) -----------------------------------------------------
 
 
+def _recent_cvrf_months(count: int = 2) -> list[str]:
+    """Return YYYY-Mon strings for the current and previous N months."""
+    months: list[str] = []
+    d = datetime.date.today().replace(day=1)
+    for _ in range(count):
+        months.append(d.strftime("%Y-%b"))
+        d = (d - datetime.timedelta(days=1)).replace(day=1)
+    return months
+
+
 def msrc_poll(conn: "sqlite3.Connection", settings: dict) -> dict:
-    """Run one MSRC poll cycle: discover new CVEs via RSS, enrich, score, store."""
+    """Run one MSRC poll cycle using CVRF bulk endpoint for recent months."""
     client = create_http_client(
         settings["msrc"]["user_agent"], 10, 30, use_curl_cffi=False,
     )
@@ -442,40 +453,48 @@ def msrc_poll(conn: "sqlite3.Connection", settings: dict) -> dict:
     config = load_scoring_config(PROJECT_ROOT / "config" / "scoring.yaml")
     kev_ids = db.get_kev_cve_ids(conn)
     known = db.get_known_msrc_cve_ids(conn)
+    cvrf_url = settings["msrc"]["cvrf_bulk_url"]
+    batch_size = settings["msrc"].get("daily_batch_size") or 200
 
-    rss_ids = fetch_rss(client, settings["msrc"]["rss_url"])
-    new_ids = [cid for cid in rss_ids if cid not in known]
-    batch_size = settings["msrc"].get("daily_batch_size")
-    if batch_size and len(new_ids) > batch_size:
+    months = _recent_cvrf_months(2)
+    logger.info("MSRC poll: fetching CVRF bulk for %s", ", ".join(months))
+
+    all_records: list[MsrcCveRecord] = []
+    all_kbs: list[KbRecord] = []
+    for month in months:
+        records, kbs = fetch_cvrf_month(client, cvrf_url, month)
+        all_records.extend(records)
+        all_kbs.extend(kbs)
+        time.sleep(10)
+
+    kb_by_cve = _group_kbs_by_cve(all_kbs)
+
+    new_records = [r for r in all_records if r.cve_id not in known]
+    logger.info(
+        "MSRC poll: %d total CVEs from CVRF, %d new",
+        len(all_records), len(new_records),
+    )
+
+    if len(new_records) > batch_size:
         logger.info(
-            "MSRC poll: %d new CVEs, capping to %d per daily_batch_size",
-            len(new_ids), batch_size,
+            "MSRC poll: capping %d new CVEs to %d per daily_batch_size",
+            len(new_records), batch_size,
         )
-        new_ids = new_ids[:batch_size]
-    logger.info("MSRC poll: %d new CVEs out of %d in RSS", len(new_ids), len(rss_ids))
+        new_records = new_records[:batch_size]
 
     new_count = 0
     error_count = 0
     errors: list[str] = []
-    for cve_id in new_ids:
-        result = enrich_cve(client, settings["msrc"]["cve_api_url"], cve_id)
-        if result is None:
-            error_count += 1
-            errors.append(cve_id)
-            continue
-        record, kb_records = result
+    for record in new_records:
         if is_ignored(record.component, config["ignore_list"]):
-            logger.debug("Skipping ignored component: %s (%s)", record.component, cve_id)
             continue
         try:
-            _score_and_store(conn, record, kb_records, kev_ids, config)
+            _score_and_store(conn, record, kb_by_cve.get(record.cve_id, []), kev_ids, config)
             new_count += 1
         except Exception:
-            logger.exception("Error storing CVE %s", cve_id)
+            logger.exception("Error storing CVE %s", record.cve_id)
             error_count += 1
-            errors.append(cve_id)
-
-        time.sleep(1)  # 1s courtesy delay between MSRC API calls
+            errors.append(record.cve_id)
 
     error_str = ", ".join(errors) if errors else None
     db.insert_msrc_poll(conn, new_count, 0, error_str)
